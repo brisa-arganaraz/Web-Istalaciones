@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <h1>Registro de Instalaciones</h1>
+
+  <!-- Formulario para cargar datos -->
+  <form id="registroForm">
+    <input type="text" id="tramite" placeholder="N° Trámite" required>
+    <input type="text" id="cliente" placeholder="Nombre del Cliente" required>
+    <input type="text" id="direccion" placeholder="Dirección" required>
+    <input type="date" id="fecha" required>
+    <input type="time" id="hora" required>
+    <input type="text" id="empleado" placeholder="Empleado asignado" required>
+    <textarea id="observaciones" placeholder="Observaciones"></textarea>
+    <button type="submit">Agregar Registro</button>
+  </form>
+
+  <!-- Buscador -->
+  <input type="text" id="search" placeholder="Buscar por cliente o trámite...">
+
+  <!-- Botón para exportar PDF -->
+  <button id="exportBtn">📄 Exportar PDF (Mes Actual)</button>
+
+  <!-- Tabla de registros -->
+  <table id="tablaRegistros">
+    <thead>
+      <tr>
+        <th>Trámite</th>
+        <th>Cliente</th>
+        <th>Dirección</th>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Empleado</th>
+        <th>Observaciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+</body>
+</html>
