@@ -1,34 +1,29 @@
-// ===============================
-// 🔥 INICIALIZAR FIREBASE
-// ===============================
-const auth = firebase.auth();
-const db = firebase.firestore();
+document.addEventListener("DOMContentLoaded", () => {
+  const auth = firebase.auth();
+  const db = firebase.firestore();  
 
-// ===============================
-// 🔒 VERIFICAR SI HAY USUARIO LOGUEADO
-// ===============================
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "index.html";
-  }
-});
-
-// ===============================
-// 🚪 BOTÓN DE CERRAR SESIÓN
-// ===============================
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", async () => {
-    if (!confirm("¿Seguro que quieres cerrar sesión?")) return;
-    try {
-      await auth.signOut();
+  // 🔒 Verificar usuario logueado
+  auth.onAuthStateChanged(user => {
+    if (!user) {
       window.location.href = "index.html";
-    } catch (error) {
-      console.error(error);
-      mostrarError("❌ Hubo un problema al cerrar sesión");
     }
   });
-}
+
+  // 🚪 Botón de cerrar sesión
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await auth.signOut();
+        window.location.href = "index.html";
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+  }
+
+
+
 
 // ===============================
 // 📋 FORMULARIO: AGREGAR O EDITAR REGISTRO
@@ -228,5 +223,4 @@ function mostrarError(texto) {
   div.innerText = texto;
 }
 
-   
-
+});

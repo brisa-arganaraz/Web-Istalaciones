@@ -21,11 +21,12 @@
       <p>&copy; 2025 Mi Sitio Web. Todos los derechos reservados.</p>
     </footer>
 
-    <!-- Firebase App (siempre primero) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <!-- ✅ Firebase App (modo compatibilidad) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 
-<!-- Firebase Authentication -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+<!-- ✅ Firebase Authentication (modo compatibilidad) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
 
 <script>
   // Tu configuración de Firebase
@@ -33,7 +34,7 @@
     apiKey: "AIzaSyCZCvpW5FP3s9VPZgeVZZnRVouysDiqhrQ",
     authDomain: "web-instalaciones.firebaseapp.com",
     projectId: "web-instalaciones",
-    storageBucket: "web-instalaciones.firebasestorage.app",
+    storageBucket: "web-instalaciones.appspot.com", 
     messagingSenderId: "244019070867",
     appId: "1:244019070867:web:7be383a3d6f64da37f8a66"
   };
@@ -41,6 +42,8 @@
   // Inicializar Firebase
   firebase.initializeApp(firebaseConfig);
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="login.js"></script>
 

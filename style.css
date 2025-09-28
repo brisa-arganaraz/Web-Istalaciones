@@ -24,6 +24,7 @@ body {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   transition: 0.3s ease;
+  z-index: 20;
 }
 
 #logoutBtn:hover {
@@ -387,3 +388,44 @@ footer {
   width: 100%;
 }
  
+
+
+
+
+
+
+
+
+.swal2-icon-custom.swal2-success {
+    border-color: #667eea !important;
+    color: #667eea !important;
+  }
+
+  .swal2-icon-custom.swal2-success .swal2-success-ring {
+    border: 4px solid #667eea !important;
+  }
+
+  .swal2-icon-custom.swal2-success .swal2-success-line-tip,
+  .swal2-icon-custom.swal2-success .swal2-success-line-long {
+    background-color: #667eea !important;
+  }
+
+  .swal2-icon-custom.swal2-error {
+    border-color: #667eea !important;
+    color: #667eea !important;
+  }
+
+  .swal2-icon-custom.swal2-error .swal2-x-mark-line-left,
+  .swal2-icon-custom.swal2-error .swal2-x-mark-line-right {
+    background-color: #667eea !important;
+  }
+
+  .swal2-confirm {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    color: white !important;
+  }
+
+  .swal2-confirm:focus {
+    box-shadow: none !important;
+  }

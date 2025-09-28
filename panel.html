@@ -11,7 +11,9 @@
 </head>
 <body>
     
-<button id="logoutBtn">Cerrar Sesión</button>
+   <section class="panel">
+   <button id ="logoutBtn" type="button">Cerrar Sesión</button>
+   </section>
 
      <!-- 🎥 Video de fondo -->
    <section class="video-section">
@@ -75,14 +77,15 @@
       <p>&copy; 2025 Mi Sitio Web. Todos los derechos reservados.</p>
     </footer>
 
-<!-- Firebase App (siempre primero) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<!-- ✅ Firebase App (modo compatibilidad) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 
-<!-- Firebase Authentication -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+<!-- ✅ Firebase Auth (modo compatibilidad) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
-<!-- Firebase Firestore (para guardar los registros) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+<!-- ✅ Firebase Firestore (modo compatibilidad) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 
 <script>
   // Tu configuración de Firebase
