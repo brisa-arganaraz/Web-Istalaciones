@@ -1,69 +1,389 @@
+/* Reset y configuración general */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f5f5f5;
+    font-family: 'Arial', sans-serif;
+    overflow-x: hidden;
+    height: 100vh;
+}
+
+#logoutBtn {
+  position: absolute;   /* Se coloca fijo dentro del body */
+  top: 15px;            /* Distancia desde arriba */
+  right: 20px;          /* Distancia desde la derecha */
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: 0.3s ease;
+}
+
+#logoutBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+
+/* LOGIN */
+
+.sesion {
+  display: flex;
+  justify-content: center; /* Centrado horizontal */
+  align-items: center;       /* Centrado vertical */
+  min-height: 100vh; /* ocupa toda la altura de la pantalla */
+  background-color: #f3f3f3;
+  background-image: url(img/WhatsApp\ Image\ 2025-09-27\ at\ 1.27.13\ AM.jpeg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.login-container {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 10px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+  padding: 2rem;
+  width: 90%;
+  max-width: 350px;
+  box-sizing: border-box;
+}
+
+.login-container h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #764ba2;
+}
+
+.login-container input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 0.5rem;
+  box-sizing: border-box;
+}
+
+.login-container button:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+
+
+/* Sección del video con formulario superpuesto */
+.video-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+#bg-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+/* Contenedor del formulario con efecto glass */
+.formulario-container {
+    position: relative;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 40px 50px;
+    max-width: 1100px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Título del formulario */
+.formulario-container h1 {
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
+    font-size: 26px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    font-weight: bold;
+}
+
+/* Estilos del formulario */
+.formulario-container form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+* Elementos que ocupan toda la fila */
+.formulario-container form input[type="text"]:first-of-type,
+.formulario-container form textarea,
+.formulario-container form button {
+    grid-column: 1 / -1;
+}
+
+.formulario-container input,
+.formulario-container textarea {
+    padding: 12px 15px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.formulario-container input::placeholder,
+.formulario-container textarea::placeholder {
+    color: #666;
+}
+
+.formulario-container input:focus,
+.formulario-container textarea:focus {
+    background: rgba(255, 255, 255, 0.95);
+    transform: scale(1.02);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}
+
+.formulario-container textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.formulario-container button {
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.formulario-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Sección de búsqueda */
+.search-section {
+    background: #f8f9fa;
+    padding: 15px 20px 0px 20px;
+}
+
+/* Sección de tabla */
+.table-section {
+    background: #f8f9fa;
+    padding: 1px 20px 5px 18px;
+}
+
+/* Contenedores para búsqueda y tabla */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0px;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+/* Buscador y botón PDF */
+.actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+#search {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    background: white;
+}
+
+#search:focus {
+    border-color: #667eea;
+}
+
+#exportBtn {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    font-size: 14px;
+}
+
+#exportBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+}
+
+/* Tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 14px;
+    color: #333;
+}
+
+tbody tr:hover {
+    background: #f8f9fa;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+.video-section {
+        padding: 15px;
     }
-    h1 {
-      text-align: center;
-      color: #333;
+
+    .formulario-container {
+        padding: 25px 20px;
+        max-width: 100%;
     }
-    form {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+    .formulario-container h1 {
+        font-size: 22px;
     }
-    form input, form textarea {
-      display: block;
-      margin: 8px 0;
-      padding: 8px;
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+
+    /* En móvil, volver a columna única */
+    .formulario-container form {
+        grid-template-columns: 1fr;
     }
-    form button {
-      background: #4CAF50;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
+
+    .actions {
+        flex-direction: column;
     }
-    form button:hover {
-      background: #45a049;
+
+    /* Convertir tabla en tarjetas en móvil */
+    .container {
+        padding: 20px 10px;
     }
-    #search {
-      margin-bottom: 15px;
-      padding: 8px;
-      width: 100%;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+
+    .search-section {
+        padding: 15px;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+    .table-section {
+        padding: 0px 15px 15px 15px;
     }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
-      text-align: left;
+
+    table, thead, tbody, th, td, tr {
+        display: block;
     }
-    th {
-      background: #4CAF50;
-      color: white;
+
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
     }
-    #exportBtn {
-      margin: 15px 0;
-      padding: 10px 15px;
-      background: #2196F3;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+
+    tr {
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    #exportBtn:hover {
-      background: #1976D2;
+
+    td {
+        border: none;
+        border-bottom: 1px solid #e9ecef;
+        position: relative;
+        padding: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
+
+    td:before {
+        content: attr(data-label) ": ";
+        position: relative;
+        font-weight: bold;
+        color: #667eea;
+        flex: 0 0 40%;
+    }
+
+    td:last-child {
+        border-bottom: none;
+    }
+}
+
+/* CSS DEL FOOTER */
+
+footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  bottom: 0;
+  width: 100%;
+}
+ 

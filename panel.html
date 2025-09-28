@@ -5,44 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Librerías para exportar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
     
-    <h1>Registro de Instalaciones</h1>
+<button id="logoutBtn">Cerrar Sesión</button>
 
-  <!-- Formulario para cargar datos -->
-  <form id="registroForm">
-    <input type="text" id="tramite" placeholder="N° Trámite" required>
-    <input type="text" id="cliente" placeholder="Nombre del Cliente" required>
-    <input type="text" id="direccion" placeholder="Dirección" required>
-    <input type="date" id="fecha" required>
-    <input type="time" id="hora" required>
-    <input type="text" id="empleado" placeholder="Empleado asignado" required>
-    <textarea id="observaciones" placeholder="Observaciones"></textarea>
-    <button type="submit">Agregar Registro</button>
-  </form>
+     <!-- 🎥 Video de fondo -->
+   <section class="video-section">
+     <video autoplay muted loop id="bg-video">
+       <source src="img/WhatsApp Video 2025-09-26 at 3.53.10 PM.mp4" type="video/mp4">
+     </video>
 
-  <!-- Buscador -->
-  <input type="text" id="search" placeholder="Buscar por cliente o trámite...">
+     <!-- Formulario -->
 
-  <!-- Botón para exportar PDF -->
-  <button id="exportBtn">📄 Exportar PDF (Mes Actual)</button>
+    <div class="formulario-container">
+     <h1>Registro de Instalaciones</h1>
+     <form id="registroForm">
+      <input type="text" id="tramite" placeholder="N° Trámite" required>
+      <input type="text" id="cliente" placeholder="Nombre del Cliente" required>
+      <input type="text" id="direccion" placeholder="Dirección" required>
+      <input type="number" id="metros" placeholder="Metros instalados" required>
+      <input type="date" id="fecha" required>
+      <input type="text" id="empleado" placeholder="Empleado asignado" required>
+      <input type="time" id="hora" required>
+      <input type="time" id="horaFin" required placeholder="Hora de finalización">
+      <textarea id="observaciones" placeholder="Observaciones"></textarea>
+      <button type="submit">Agregar Registro</button>
+     </form>
+    </div>
+   </section>
 
-  <!-- Tabla de registros -->
-  <table id="tablaRegistros">
-    <thead>
-      <tr>
-        <th>Trámite</th>
-        <th>Cliente</th>
-        <th>Dirección</th>
-        <th>Fecha</th>
-        <th>Hora</th>
-        <th>Empleado</th>
-        <th>Observaciones</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <!-- Buscador + Botón Exportar PDF-->
+    <section class="search-section">
+     <div class="container">
+      <div class="actions">
+       <input type="text" id="search" placeholder="🔍 Buscar por cliente o trámite...">
+       <button id="exportBtn">📄 Exportar PDF (Mes Actual)</button>
+      </div>
+     </div>
+    </section>
+
+    <!-- Tabla -->
+
+    <section class="table-section">
+      <div class="container">
+     <table id="tablaRegistros">
+      <thead>
+        <tr>
+          <th>Trámite</th>
+          <th>Cliente</th>
+          <th>Dirección</th>
+          <th>Metros</th>
+          <th>Fecha</th>
+          <th>Hora Inicio</th>
+          <th>Hora Fin</th>
+          <th>Empleado</th>
+          <th>Observaciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+     </table>
+     </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2025 Mi Sitio Web. Todos los derechos reservados.</p>
+    </footer>
+
+<!-- Firebase App (siempre primero) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+
+<!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+
+<!-- Firebase Firestore (para guardar los registros) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+
+<script>
+  // Tu configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCZCvpW5FP3s9VPZgeVZZnRVouysDiqhrQ",
+    authDomain: "web-instalaciones.firebaseapp.com",
+    projectId: "web-instalaciones",
+    storageBucket: "web-instalaciones.appspot.com",
+    messagingSenderId: "244019070867",
+    appId: "1:244019070867:web:7be383a3d6f64da37f8a66"
+  };
+  // Inicializar Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
+
+<script src="panel.js"></script>
+
+
 
 </body>
 </html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+  <section class="sesion">
+      <div class="login-container">
+        <h2>Iniciar Sesión</h2>
+        <input type="email" placeholder="Correo electrónico" id="email" />
+        <input type="password" placeholder="Contraseña" id="password" />
+        <button id="loginBtn">Ingresar</button>
+        </div>
+    </section>
+ 
+    <footer>
+      <p>&copy; 2025 Mi Sitio Web. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Firebase App (siempre primero) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+
+<!-- Firebase Authentication -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+
+<script>
+  // Tu configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCZCvpW5FP3s9VPZgeVZZnRVouysDiqhrQ",
+    authDomain: "web-instalaciones.firebaseapp.com",
+    projectId: "web-instalaciones",
+    storageBucket: "web-instalaciones.firebasestorage.app",
+    messagingSenderId: "244019070867",
+    appId: "1:244019070867:web:7be383a3d6f64da37f8a66"
+  };
+
+  // Inicializar Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
+
+<script src="login.js"></script>
+
+</body>
+</html>
