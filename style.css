@@ -9,6 +9,12 @@ body {
     font-family: 'Arial', sans-serif;
     overflow-x: hidden;
     height: 100vh;
+    height: auto;
+    flex-direction: column;
+}
+
+main, .contenido-principal {
+    flex: 1;
 }
 
 #logoutBtn {
@@ -386,15 +392,12 @@ footer {
   padding: 20px;
   bottom: 0;
   width: 100%;
+  position: relative; /* 👈 importante para evitar conflictos */
+  z-index: 1;
+  margin-top: auto;
 }
  
-
-
-
-
-
-
-
+/* ANUNCIOS CSS TODOS IGUALES  */
 
 .swal2-icon-custom.swal2-success {
     border-color: #667eea !important;
@@ -429,3 +432,94 @@ footer {
   .swal2-confirm:focus {
     box-shadow: none !important;
   }
+
+/* CSS DE EL BOTON DE PDF  */
+
+  #menuMesesPdf {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  z-index: 1000;
+  display: none;
+  padding: 8px 0;
+  width: 200px;
+  font-size: 14px;
+}
+
+#menuMesesPdf div {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#menuMesesPdf div:hover {
+  background-color: #667eea;
+  color: white;
+}
+
+/* CSS DE ANIMACION DE BORRADO  */
+
+.fila-oculta {
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+}
+
+/* Contenedor de acciones con tres puntitos */
+.acciones-container {
+  position: relative;
+  display: inline-block;
+  margin-left: 10px;
+  height: auto; /* 👈 Importante */
+  line-height: 1; /* 👈 Esto elimina espacios de línea extra */
+}
+
+/* Botón de tres puntitos */
+.menuBtn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #667eea;
+  padding: 5px;
+}
+
+/* Menú de opciones oculto por defecto */
+.accionesOpciones {
+  position: absolute;
+  top: -23px;
+  right: -100px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 100px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  pointer-events: auto;
+  width: max-content;
+  margin: 0 !important;
+  transform: translateY(0);
+  height: auto;
+  max-height: none;
+}
+
+/* Ocultar con clase */
+.hidden {
+  display: none !important;;
+}
+
+.accionesOpciones button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Forzar que la tabla y celdas no corten el contenido flotante */
+table, tbody, td {
+  overflow: visible !important;
+  position: relative;
+}
