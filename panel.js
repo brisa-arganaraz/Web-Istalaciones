@@ -122,8 +122,105 @@ registroForm.addEventListener("submit", async (e) => {
 // 📄 MOSTRAR REGISTROS EN TABLA (FILTRADO POR MES)
 // ===============================
 const tabla = document.getElementById("tablaRegistros").getElementsByTagName("tbody")[0];
-let mesActual = new Date().getMonth() + 1; // Mes actual (1-12)
-let añoActual = new Date().getFullYear(); // Año actual
+let mesActual = new Date().getMonth() + 1;
+let añoActual = new Date().getFullYear();
+
+// Variable global para rastrear el menú abierto
+let menuAbiertoActual = null;
+
+// ===============================
+// FUNCIONES REUTILIZABLES PARA MENÚ DE ACCIONES
+// ===============================
+
+function configurarMenuAcciones(row, menuBtn, accionesOpciones) {
+  menuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    
+    // Si hay un menú abierto y no es este, cerrarlo
+    if (menuAbiertoActual && menuAbiertoActual !== accionesOpciones) {
+      menuAbiertoActual.classList.add("hidden");
+    }
+    
+    // Toggle del menú actual
+    accionesOpciones.classList.toggle("hidden");
+    
+    // Actualizar referencia del menú abierto
+    if (!accionesOpciones.classList.contains("hidden")) {
+      menuAbiertoActual = accionesOpciones;
+    } else {
+      menuAbiertoActual = null;
+    }
+  });
+}
+
+function configurarBotonEditar(boton, docId, data) {
+  boton.addEventListener("click", () => {
+    editandoId = docId;
+    document.getElementById("tramite").value = data.tramite;
+    document.getElementById("cliente").value = data.cliente;
+    document.getElementById("direccion").value = data.direccion;
+    document.getElementById("metros").value = data.metros;
+    document.getElementById("fecha").value = data.fecha;
+    document.getElementById("empleado").value = data.empleado;
+    document.getElementById("hora").value = data.hora;
+    document.getElementById("horaFin").value = data.horaFin;
+    document.getElementById("observaciones").value = data.observaciones || "";
+  });
+}
+
+function configurarBotonBorrar(boton, docId, row) {
+  boton.addEventListener("click", () => {
+    Swal.fire({
+      icon: "warning",
+      title: "¿Estás seguro?",
+      text: "¿Querés borrar esta línea de la tabla?",
+      showCancelButton: true,
+      confirmButtonText: "Sí, borrar",
+      cancelButtonText: "No",
+      confirmButtonColor: "#667eea",
+      cancelButtonColor: "#aaa",
+      customClass: {
+        icon: "swal2-icon-custom"
+      }
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        row.classList.add("fila-oculta");
+        setTimeout(async () => {
+          try {
+            await db.collection("registros").doc(docId).delete();
+            row.remove();
+            Swal.fire({
+              icon: "success",
+              title: "¡Eliminado!",
+              text: "El registro fue eliminado correctamente.",
+              timer: 1800,
+              showConfirmButton: false,
+              customClass: {
+                icon: "swal2-icon-custom"
+              }
+            });
+          } catch (error) {
+            console.error(error);
+            Swal.fire({
+              icon: "error",
+              title: "Error al eliminar",
+              text: "No se pudo eliminar el registro.",
+              confirmButtonText: "OK",
+              confirmButtonColor: "#667eea",
+              customClass: {
+                icon: "swal2-icon-custom"
+              }
+            });
+          }
+        }, 400);
+      }
+    });
+  });
+}
+
+// ===============================
+// FUNCIÓN PRINCIPAL: MOSTRAR REGISTROS
+// ===============================
 
 function mostrarRegistros(mes = mesActual, año = añoActual) {
   db.collection("registros")
@@ -134,7 +231,6 @@ function mostrarRegistros(mes = mesActual, año = añoActual) {
       tabla.innerHTML = "";
       
       if (snapshot.empty) {
-        // Si no hay registros para este mes, mostrar mensaje
         tabla.innerHTML = `
           <tr>
             <td colspan="9" style="text-align: center; padding: 20px; color: #666;">
@@ -149,111 +245,46 @@ function mostrarRegistros(mes = mesActual, año = añoActual) {
         const data = doc.data();
         const row = tabla.insertRow();
         row.innerHTML = `
-          <td>${data.tramite}</td>
-          <td>${data.cliente}</td>
-          <td>${data.direccion}</td>
-          <td>${data.metros}</td>
-          <td>${data.fecha}</td>
-          <td>${data.hora}</td>
-          <td>${data.horaFin}</td>
-          <td>${data.empleado}</td>
-          <td>
-            ${data.observaciones || ""}
-             <div class="acciones-container">
-               <button class="menuBtn">⋯</button>
-             <div class="accionesOpciones hidden">
-              <button class="editarBtn">✏️ Editar</button>
-              <button class="borrarBtn">🗑️ Borrar</button>
-             </div>
-             </div>
-          </td>
-        `;
+        <td data-label="Trámite">${data.tramite}</td>
+        <td data-label="Cliente">${data.cliente}</td>
+        <td data-label="Dirección">${data.direccion}</td>
+        <td data-label="Metros">${data.metros}</td>
+        <td data-label="Fecha">${data.fecha}</td>
+        <td data-label="Hora Inicio">${data.hora}</td>
+        <td data-label="Hora Fin">${data.horaFin}</td>
+        <td data-label="Empleado">${data.empleado}</td>
+        <td data-label="Observaciones">
+        ${data.observaciones || ""}
+     <div class="acciones-container">
+       <button class="menuBtn">⋯</button>
+      <div class="accionesOpciones hidden">
+        <button class="editarBtn">✏️ Editar</button>
+        <button class="borrarBtn">🗑️ Borrar</button>
+      </div>
+     </div>
+  </td>
+   `;
 
+        // Configurar eventos del menú usando las funciones reutilizables
         const menuBtn = row.querySelector(".menuBtn");
         const accionesOpciones = row.querySelector(".accionesOpciones");
+        const editarBtn = row.querySelector(".editarBtn");
+        const borrarBtn = row.querySelector(".borrarBtn");
 
-       // Mostrar/ocultar menú al hacer clic en los tres puntitos
-         menuBtn.addEventListener("click", (e) => {
-         e.stopPropagation(); // Para que no se cierre al instante
-        accionesOpciones.classList.toggle("hidden");
-        });
-
-       // Cerrar menú si se hace clic fuera
-       document.addEventListener("click", () => {
-       accionesOpciones.classList.add("hidden");
-      });
-
-        // Botón de editar
-        row.querySelector(".editarBtn").addEventListener("click", () => {
-          editandoId = doc.id;
-
-          // Llenar el formulario con los datos existentes
-          document.getElementById("tramite").value = data.tramite;
-          document.getElementById("cliente").value = data.cliente;
-          document.getElementById("direccion").value = data.direccion;
-          document.getElementById("metros").value = data.metros;
-          document.getElementById("fecha").value = data.fecha;
-          document.getElementById("empleado").value = data.empleado;
-          document.getElementById("hora").value = data.hora;
-          document.getElementById("horaFin").value = data.horaFin;
-          document.getElementById("observaciones").value = data.observaciones || "";
-
-        });
-
-        // Botón de borrar
-        row.querySelector(".borrarBtn").addEventListener("click", () => {
-          Swal.fire({
-            icon: "warning",
-            title: "¿Estás seguro?",
-            text: "¿Querés borrar esta línea de la tabla?",
-            showCancelButton: true,
-            confirmButtonText: "Sí, borrar",
-            cancelButtonText: "No",
-            confirmButtonColor: "#667eea",
-            cancelButtonColor: "#aaa",
-            customClass: {
-              icon: "swal2-icon-custom"
-            }
-          }).then(async (result) => {
-            if (result.isConfirmed) {
-              // Animación antes de eliminar
-              row.classList.add("fila-oculta");
-
-              setTimeout(async () => {
-                try {
-                  await db.collection("registros").doc(doc.id).delete();
-                  row.remove();
-
-                  Swal.fire({
-                    icon: "success",
-                    title: "¡Eliminado!",
-                    text: "El registro fue eliminado correctamente.",
-                    timer: 1800,
-                    showConfirmButton: false,
-                    customClass: {
-                      icon: "swal2-icon-custom"
-                    }
-                  });
-                } catch (error) {
-                  console.error(error);
-                  Swal.fire({
-                    icon: "error",
-                    title: "Error al eliminar",
-                    text: "No se pudo eliminar el registro.",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#667eea",
-                    customClass: {
-                      icon: "swal2-icon-custom"
-                    }
-                  });
-                }
-              }, 400); // Tiempo de la animación
-            }
-          });
-        });
+        configurarMenuAcciones(row, menuBtn, accionesOpciones);
+        configurarBotonEditar(editarBtn, doc.id, data);
+        configurarBotonBorrar(borrarBtn, doc.id, row);
       });
     });
 }
+
+// Cerrar menú al hacer clic fuera (GLOBAL)
+document.addEventListener("click", (e) => {
+  if (menuAbiertoActual && !e.target.closest(".acciones-container")) {
+    menuAbiertoActual.classList.add("hidden");
+    menuAbiertoActual = null;
+  }
+});
 
 // Función para cambiar el mes que se muestra en la tabla
 function cambiarMesTabla(mes, año) {
@@ -269,29 +300,26 @@ mostrarRegistros();
 // 🔍 BUSCAR EN TABLA (BUSCA EN TODOS LOS MESES)
 // ===============================
 const searchInput = document.getElementById("search");
-let listenerBusqueda = null; // Para guardar la suscripción
+let listenerBusqueda = null;
 
 if (searchInput) {
   searchInput.addEventListener("input", async () => {
     const filter = searchInput.value.toLowerCase().trim();
     
-    // Si está vacío, volver a mostrar el mes actual
     if (filter === "") {
       if (listenerBusqueda) {
-        listenerBusqueda(); // Cancelar listener anterior
+        listenerBusqueda();
         listenerBusqueda = null;
       }
       mostrarRegistros(mesActual, añoActual);
       return;
     }
     
-    // Cancelar listener anterior si existe
     if (listenerBusqueda) {
       listenerBusqueda();
       listenerBusqueda = null;
     }
     
-    // Buscar en toda la base de datos del año
     const snapshot = await db.collection("registros")
       .where("año", "==", añoActual)
       .get();
@@ -327,57 +355,15 @@ if (searchInput) {
           </td>
         `;
 
-        // Eventos del menú
+        // Configurar eventos del menú usando las funciones reutilizables
         const menuBtn = row.querySelector(".menuBtn");
         const accionesOpciones = row.querySelector(".accionesOpciones");
-        menuBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          accionesOpciones.classList.toggle("hidden");
-        });
+        const editarBtn = row.querySelector(".editarBtn");
+        const borrarBtn = row.querySelector(".borrarBtn");
 
-        // Botón editar
-        row.querySelector(".editarBtn").addEventListener("click", () => {
-          editandoId = doc.id;
-          document.getElementById("tramite").value = data.tramite;
-          document.getElementById("cliente").value = data.cliente;
-          document.getElementById("direccion").value = data.direccion;
-          document.getElementById("metros").value = data.metros;
-          document.getElementById("fecha").value = data.fecha;
-          document.getElementById("empleado").value = data.empleado;
-          document.getElementById("hora").value = data.hora;
-          document.getElementById("horaFin").value = data.horaFin;
-          document.getElementById("observaciones").value = data.observaciones || "";
-        });
-
-        // Botón borrar
-        row.querySelector(".borrarBtn").addEventListener("click", () => {
-          Swal.fire({
-            icon: "warning",
-            title: "¿Estás seguro?",
-            text: "¿Querés borrar esta línea de la tabla?",
-            showCancelButton: true,
-            confirmButtonText: "Sí, borrar",
-            cancelButtonText: "No",
-            confirmButtonColor: "#667eea",
-            cancelButtonColor: "#aaa",
-            customClass: { icon: "swal2-icon-custom" }
-          }).then(async (result) => {
-            if (result.isConfirmed) {
-              row.classList.add("fila-oculta");
-              setTimeout(async () => {
-                await db.collection("registros").doc(doc.id).delete();
-                row.remove();
-                Swal.fire({
-                  icon: "success",
-                  title: "¡Eliminado!",
-                  timer: 1800,
-                  showConfirmButton: false,
-                  customClass: { icon: "swal2-icon-custom" }
-                });
-              }, 400);
-            }
-          });
-        });
+        configurarMenuAcciones(row, menuBtn, accionesOpciones);
+        configurarBotonEditar(editarBtn, doc.id, data);
+        configurarBotonBorrar(borrarBtn, doc.id, row);
       }
     });
     
@@ -428,7 +414,7 @@ function crearMenuMeses() {
   menu.style.display = "none";
   menu.style.zIndex = 1000;
   menu.style.boxShadow = "0 2px 8px rgba(0,0,0,0.15)";
-  menu.style.width = "250px"; // Aumenté el ancho para la flechita
+  menu.style.width = "250px";
   menu.style.maxHeight = "300px";
   menu.style.overflowY = "auto";
   menu.id = "menuMesesPdf";
@@ -440,6 +426,9 @@ function crearMenuMeses() {
     item.style.display = "flex";
     item.style.justifyContent = "space-between";
     item.style.alignItems = "center";
+    item.style.transition = "background-color 0.2s ease";
+    item.dataset.mesNumero = index + 1;
+    item.classList.add("menu-mes-item");
     
     // Nombre del mes
     const nombreMes = document.createElement("span");
@@ -458,12 +447,12 @@ function crearMenuMeses() {
     btnDescargar.style.fontSize = "16px";
     btnDescargar.dataset.mes = index + 1;
     
-    // Click en el nombre del mes - SOLO cambiar tabla
+    // Click en el nombre del mes - cambiar tabla Y actualizar mes activo
     nombreMes.addEventListener("click", (e) => {
       e.stopPropagation();
       const mesSeleccionado = Number(nombreMes.dataset.mes);
       cambiarMesTabla(mesSeleccionado, añoActual);
-      // NO cerrar el menú para que puedan descargar si quieren
+      actualizarMesActivo(mesSeleccionado); // Actualizar visualmente
     });
     
     // Click en la flechita - descargar PDF
@@ -474,13 +463,19 @@ function crearMenuMeses() {
       exportarPdfMes(mesSeleccionado);
     });
 
-    // Hover en toda la fila
+    // Hover - SOLO si NO es el mes activo
     item.addEventListener("mouseenter", () => {
-      item.style.backgroundColor = "#f0f0f0";
+      const esActivo = item.classList.contains("mes-activo");
+      if (!esActivo) {
+        item.style.backgroundColor = "#f0f0f0";
+      }
     });
 
     item.addEventListener("mouseleave", () => {
-      item.style.backgroundColor = "white";
+      const esActivo = item.classList.contains("mes-activo");
+      if (!esActivo) {
+        item.style.backgroundColor = "white";
+      }
     });
 
     item.appendChild(nombreMes);
@@ -492,8 +487,30 @@ function crearMenuMeses() {
   return menu;
 }
 
+// Función para actualizar el mes activo visualmente
+function actualizarMesActivo(mes) {
+  const menuItems = document.querySelectorAll("#menuMesesPdf > div");
+  menuItems.forEach(item => {
+    const mesNumero = Number(item.dataset.mesNumero);
+    if (mesNumero === mes) {
+      // Estilo para el mes activo
+      item.classList.add("mes-activo");
+      item.style.backgroundColor = "#667eea";
+      item.style.color = "white";
+      item.querySelector("span").style.fontWeight = "bold";
+    } else {
+      // Estilo normal
+      item.classList.remove("mes-activo");
+      item.style.backgroundColor = "white";
+      item.style.color = "black";
+      item.querySelector("span").style.fontWeight = "normal";
+    }
+  });
+}
+
 // Crear menú al inicio (una sola vez)
 const menuMeses = crearMenuMeses();
+actualizarMesActivo(mesActual); // Marcar el mes actual al inicio
 
 // Posicionar y mostrar el menú debajo del botón
 function toggleMenu() {
@@ -628,4 +645,251 @@ function mostrarError(texto) {
   div.innerText = texto;
 }
 
+// ===============================
+// 💰 REPORTE DE FACTURACIÓN
+// Configuración de rangos de precios
+
+const RANGOS_PRECIOS = [
+  { min: 0, max: 50, precio: 25000, label: "0-50" },
+  { min: 50, max: 100, precio: 35000, label: "50-100" },
+  { min: 100, max: 150, precio: 45000, label: "100-150" },
+  { min: 150, max: 200, precio: 55000, label: "150-200" },
+  { min: 200, max: 250, precio: 60000, label: "200-250" },
+  { min: 250, max: 300, precio: 70000, label: "250-300" }
+];
+
+// Estado para mostrar/ocultar montos
+let montosOcultos = false;
+
+// Función para determinar el precio según los metros
+function obtenerPrecioPorMetros(metros) {
+  const metrosNum = Number(metros);
+  
+  for (const rango of RANGOS_PRECIOS) {
+    if (metrosNum > rango.min && metrosNum <= rango.max) {
+      return rango.precio;
+    }
+  }
+  
+  // Si los metros son mayores a 300, usar el último precio
+  if (metrosNum > 300) {
+    return RANGOS_PRECIOS[RANGOS_PRECIOS.length - 1].precio;
+  }
+  
+  return 0;
+}
+
+// Función para formatear números como moneda
+function formatearMoneda(numero) {
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    minimumFractionDigits: 0
+  }).format(numero);
+}
+
+// Toggle para mostrar/ocultar montos
+const toggleBtn = document.getElementById("toggleMontos");
+const iconoOjo = document.getElementById("iconoOjo");
+const textoToggle = document.getElementById("textoToggle");
+
+if (toggleBtn) {
+  toggleBtn.addEventListener("click", () => {
+    montosOcultos = !montosOcultos;
+    
+    // Cambiar icono y texto
+    if (montosOcultos) {
+      iconoOjo.textContent = "🙈";
+      textoToggle.textContent = "Mostrar Montos";
+    } else {
+      iconoOjo.textContent = "👁️";
+      textoToggle.textContent = "Ocultar Montos";
+    }
+    
+    // Aplicar/quitar blur a todos los montos
+    const todosLosMontos = document.querySelectorAll(".monto, .total-monto");
+    todosLosMontos.forEach(monto => {
+      if (montosOcultos) {
+        monto.classList.remove("visible");
+        monto.classList.add("oculto");
+      } else {
+        monto.classList.remove("oculto");
+        monto.classList.add("visible");
+      }
+    });
+  });
+}
+
+// Generar reporte
+const btnGenerarReporte = document.getElementById("generarReporte");
+const resultadosReporte = document.getElementById("resultadosReporte");
+
+if (btnGenerarReporte) {
+  btnGenerarReporte.addEventListener("click", async () => {
+    const fechaInicio = document.getElementById("fechaInicio").value;
+    const fechaFin = document.getElementById("fechaFin").value;
+    
+    if (!fechaInicio || !fechaFin) {
+      Swal.fire({
+        icon: "warning",
+        title: "Faltan datos",
+        text: "Por favor seleccioná ambas fechas",
+        confirmButtonColor: "#667eea",
+        customClass: {
+          icon: 'swal2-icon-custom'
+        }
+      });
+      return;
+    }
+    
+    if (fechaInicio > fechaFin) {
+      Swal.fire({
+        icon: "error",
+        title: "Error en fechas",
+        text: "La fecha de inicio no puede ser mayor a la fecha final",
+        confirmButtonColor: "#667eea",
+        customClass: {
+          icon: 'swal2-icon-custom'
+        }
+      });
+      return;
+    }
+    
+    // Mostrar loading
+    Swal.fire({
+      title: 'Generando reporte...',
+      html: 'Por favor esperá un momento',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+    
+    try {
+      // Obtener registros del rango de fechas
+      const snapshot = await db.collection("registros")
+        .where("fecha", ">=", fechaInicio)
+        .where("fecha", "<=", fechaFin)
+        .get();
+      
+      // Inicializar contadores
+      const contadores = {};
+      RANGOS_PRECIOS.forEach(rango => {
+        contadores[rango.label] = {
+          cantidad: 0,
+          total: 0,
+          precio: rango.precio
+        };
+      });
+      
+      let totalGeneral = 0;
+      let totalInstalaciones = 0;
+      
+      // Procesar cada registro
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const metros = Number(data.metros);
+        const precio = obtenerPrecioPorMetros(metros);
+        
+        if (precio > 0) {
+          totalInstalaciones++;
+          totalGeneral += precio;
+          
+          // Encontrar el rango correcto
+          for (const rango of RANGOS_PRECIOS) {
+            if (metros > rango.min && metros <= rango.max) {
+              contadores[rango.label].cantidad++;
+              contadores[rango.label].total += precio;
+              break;
+            }
+          }
+          
+          // Si es mayor a 300, contar en el último rango
+          if (metros > 300) {
+            const ultimoRango = RANGOS_PRECIOS[RANGOS_PRECIOS.length - 1];
+            contadores[ultimoRango.label].cantidad++;
+            contadores[ultimoRango.label].total += precio;
+          }
+        }
+      });
+      
+      // Actualizar las tarjetas con los resultados
+      RANGOS_PRECIOS.forEach(rango => {
+        const tarjeta = document.querySelector(`.tarjeta-resumen[data-rango="${rango.label}"]`);
+        if (tarjeta) {
+          const cantidad = tarjeta.querySelector(".cantidad");
+          const monto = tarjeta.querySelector(".monto");
+          
+          const datos = contadores[rango.label];
+          cantidad.textContent = `${datos.cantidad} instalacion${datos.cantidad !== 1 ? 'es' : ''}`;
+          monto.textContent = formatearMoneda(datos.total);
+          
+          // Aplicar estado de visibilidad actual
+          if (montosOcultos) {
+            monto.classList.add("oculto");
+            monto.classList.remove("visible");
+          } else {
+            monto.classList.add("visible");
+            monto.classList.remove("oculto");
+          }
+        }
+      });
+      
+      // Actualizar total
+      const totalMonto = document.getElementById("totalIngresos");
+      const totalInstalacionesTexto = document.querySelector(".total-instalaciones");
+      
+      if (totalMonto) {
+        totalMonto.textContent = formatearMoneda(totalGeneral);
+        
+        // Aplicar estado de visibilidad actual
+        if (montosOcultos) {
+          totalMonto.classList.add("oculto");
+          totalMonto.classList.remove("visible");
+        } else {
+          totalMonto.classList.add("visible");
+          totalMonto.classList.remove("oculto");
+        }
+      }
+      
+      if (totalInstalacionesTexto) {
+        totalInstalacionesTexto.textContent = `${totalInstalaciones} instalacion${totalInstalaciones !== 1 ? 'es' : ''} en total`;
+      }
+      
+      // Mostrar resultados
+      resultadosReporte.style.display = "block";
+      
+      // Scroll suave hacia los resultados
+      resultadosReporte.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      
+      Swal.close();
+      
+      // Mensaje de éxito
+      Swal.fire({
+        icon: 'success',
+        title: '¡Reporte generado!',
+        text: `Se encontraron ${totalInstalaciones} instalaciones`,
+        timer: 2000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end',
+        customClass: {
+          icon: 'swal2-icon-custom'
+        }
+      });
+      
+    } catch (error) {
+      console.error("Error al generar reporte:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema al generar el reporte',
+        confirmButtonColor: "#667eea",
+        customClass: {
+          icon: 'swal2-icon-custom'
+        }
+      });
+    }
+  });
+}
 });

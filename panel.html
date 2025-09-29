@@ -40,6 +40,96 @@
     </div>
    </section>
 
+
+   <section class="facturacion-section">
+    <div class="container">
+      <div class="facturacion-header">
+      <h2>💰 Reporte de Facturación</h2>
+      <button id="toggleMontos" class="toggle-btn">
+        <span id="iconoOjo">👁️</span> <span id="textoToggle">Ocultar Montos</span>
+      </button>
+    </div>
+
+    <div class="facturacion-filtros">
+      <div class="filtro-grupo">
+        <label for="fechaInicio">📅 Fecha Inicio:</label>
+        <input type="date" id="fechaInicio">
+      </div>
+      <div class="filtro-grupo">
+        <label for="fechaFin">📅 Fecha Fin:</label>
+        <input type="date" id="fechaFin">
+      </div>
+      <button id="generarReporte" class="btn-generar">🔍 Generar Reporte</button>
+    </div>
+
+    <div id="resultadosReporte" class="resultados-container" style="display: none;">
+      <div class="resumen-grid">
+        <div class="tarjeta-resumen" data-rango="0-50">
+          <div class="tarjeta-icono">📏</div>
+          <div class="tarjeta-info">
+            <h3>0 - 50 metros</h3>
+            <p class="cantidad">0 instalaciones</p>
+            <p class="monto visible">$0</p>
+          </div>
+        </div>
+
+        <div class="tarjeta-resumen" data-rango="50-100">
+          <div class="tarjeta-icono">📏</div>
+          <div class="tarjeta-info">
+            <h3>50 - 100 metros</h3>
+            <p class="cantidad">0 instalaciones</p>
+            <p class="monto visible">$0</p>
+          </div>
+        </div>
+
+        <div class="tarjeta-resumen" data-rango="100-150">
+          <div class="tarjeta-icono">📏</div>
+          <div class="tarjeta-info">
+            <h3>100 - 150 metros</h3>
+            <p class="cantidad">0 instalaciones</p>
+            <p class="monto visible">$0</p>
+          </div>
+        </div>
+
+        <div class="tarjeta-resumen" data-rango="150-200">
+          <div class="tarjeta-icono">📏</div>
+          <div class="tarjeta-info">
+            <h3>150 - 200 metros</h3>
+            <p class="cantidad">0 instalaciones</p>
+            <p class="monto visible">$0</p>
+          </div>
+        </div>
+
+        <div class="tarjeta-resumen" data-rango="200-250">
+          <div class="tarjeta-icono">📏</div>
+          <div class="tarjeta-info">
+            <h3>200 - 250 metros</h3>
+            <p class="cantidad">0 instalaciones</p>
+            <p class="monto visible">$0</p>
+          </div>
+        </div>
+
+        <div class="tarjeta-resumen" data-rango="250-300">
+          <div class="tarjeta-icono">📏</div>
+          <div class="tarjeta-info">
+            <h3>250 - 300 metros</h3>
+            <p class="cantidad">0 instalaciones</p>
+            <p class="monto visible">$0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="total-container">
+        <div class="total-card">
+          <h3>💵 Total de Ingresos</h3>
+          <p id="totalIngresos" class="total-monto visible">$0</p>
+          <p class="total-instalaciones">0 instalaciones en total</p>
+        </div>
+       </div>
+      </div>
+    </div>
+   </section>
+
     <!-- Buscador + Botón Exportar PDF-->
     <section class="search-section">
      <div class="container">
