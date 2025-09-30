@@ -187,12 +187,21 @@ function configurarBotonBorrar(boton, docId, row) {
         row.classList.add("fila-oculta");
         setTimeout(async () => {
           try {
+            // PRIMERO: Obtener los datos antes de borrar
+            const doc = await db.collection("registros").doc(docId).get();
+            const data = doc.data();
+            
+            // SEGUNDO: Registrar la eliminación
+            await registrarEliminacion(docId, data);
+            
+            // TERCERO: Borrar el documento
             await db.collection("registros").doc(docId).delete();
+            
             row.remove();
             Swal.fire({
               icon: "success",
               title: "¡Eliminado!",
-              text: "El registro fue eliminado correctamente.",
+              text: "El registro fue eliminado y guardado en el historial.",
               timer: 1800,
               showConfirmButton: false,
               customClass: {
@@ -892,4 +901,30 @@ if (btnGenerarReporte) {
     }
   });
 }
+
+// ===============================
+// 🗑️ FUNCIÓN PARA REGISTRAR ELIMINACIONES
+// ===============================
+
+async function registrarEliminacion(docId, data) {
+  try {
+    const usuarioActual = auth.currentUser;
+    
+    await db.collection("registros_eliminados").add({
+      // Datos del registro original
+      ...data,
+      
+      // Datos de la eliminación
+      registroOriginalId: docId,
+      eliminadoPor: usuarioActual ? usuarioActual.email : "Usuario desconocido",
+      eliminadoEn: new Date(),
+      timestampEliminacion: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    console.log("✅ Eliminación registrada correctamente");
+  } catch (error) {
+    console.error("❌ Error al registrar eliminación:", error);
+  }
+}
+
 });
