@@ -41,7 +41,9 @@ registroForm.addEventListener("submit", async (e) => {
   const horaFin = document.getElementById("horaFin").value;
   const observaciones = document.getElementById("observaciones").value;
 
-  const fechaObj = new Date(fecha);
+  // Parsear la fecha correctamente para evitar problemas de zona horaria
+  const [anioFecha, mesFecha, diaFecha] = fecha.split('-').map(Number);
+  const fechaObj = new Date(anioFecha, mesFecha - 1, diaFecha);
 
   try {
     if (editandoId) {
@@ -55,7 +57,9 @@ registroForm.addEventListener("submit", async (e) => {
         empleado,
         hora,
         horaFin,
-        observaciones
+        observaciones,
+        año: Number(anioFecha),
+        mes: Number(mesFecha)
       });
       // Mensaje bonito con SweetAlert2
       Swal.fire({
@@ -83,8 +87,8 @@ registroForm.addEventListener("submit", async (e) => {
         horaFin,
         observaciones,
         timestamp: new Date(),
-        año: fechaObj.getFullYear(),
-        mes: fechaObj.getMonth() + 1
+        año: Number(anioFecha),
+        mes: Number(mesFecha)
       });
       // Mensaje bonito con SweetAlert2
       Swal.fire({
@@ -336,12 +340,46 @@ if (searchInput) {
     tabla.innerHTML = "";
     let encontrados = 0;
     
+    // Variables para detectar búsqueda por fecha + empleado
+    let contadorPorEmpleado = {};
+    let fechaBuscada = null;
+    let empleadosBuscados = [];
+    
+    // Detectar si está buscando "aldo" o "angel" en el texto
+    const buscaAldo = filter.includes("aldo");
+    const buscaAngel = filter.includes("angel");
+    
+    if (buscaAldo) empleadosBuscados.push("aldo");
+    if (buscaAngel) empleadosBuscados.push("angel");
+    
+    // Detectar si está buscando por fecha (formato dd/mm/yyyy o yyyy-mm-dd)
+    const esFecha = /\d{1,2}\/\d{1,2}\/\d{4}/.test(filter) || /\d{4}-\d{1,2}-\d{1,2}/.test(filter);
+    
     snapshot.forEach(doc => {
       const data = doc.data();
       const texto = `${data.tramite} ${data.cliente} ${data.direccion} ${data.metros} ${data.fecha} ${data.empleado} ${data.observaciones}`.toLowerCase();
       
       if (texto.includes(filter)) {
         encontrados++;
+        
+        // Si es búsqueda por fecha + empleado específico, contar solo ese empleado
+        if (esFecha && data.empleado && empleadosBuscados.length > 0) {
+          const empleado = data.empleado.toLowerCase().trim();
+          
+          // Solo contar si el empleado está en la lista de buscados
+          if (empleadosBuscados.includes(empleado)) {
+            if (!contadorPorEmpleado[empleado]) {
+              contadorPorEmpleado[empleado] = 0;
+            }
+            contadorPorEmpleado[empleado]++;
+            
+            // Guardar la fecha formateada
+            if (!fechaBuscada && data.fecha) {
+              fechaBuscada = data.fecha;
+            }
+          }
+        }
+        
         const row = tabla.insertRow();
         row.innerHTML = `
           <td>${data.tramite}</td>
@@ -378,6 +416,23 @@ if (searchInput) {
     
     if (encontrados === 0) {
       tabla.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 20px; color: #666;">No se encontraron resultados</td></tr>`;
+    } else if (esFecha && Object.keys(contadorPorEmpleado).length > 0) {
+      // Mostrar mensaje con resultados por empleado
+      let mensajes = [];
+      for (const [empleado, cantidad] of Object.entries(contadorPorEmpleado)) {
+        const nombreEmpleado = empleado.charAt(0).toUpperCase() + empleado.slice(1);
+        mensajes.push(`${cantidad} instalación${cantidad !== 1 ? 'es' : ''} de ${nombreEmpleado}`);
+      }
+      
+      Swal.fire({
+        icon: 'info',
+        title: '🔍 Resultados de búsqueda',
+        html: `<strong>Fecha:</strong> ${fechaBuscada}<br><br>${mensajes.join('<br>')}`,
+        confirmButtonColor: '#667eea',
+        customClass: {
+          icon: 'swal2-icon-custom'
+        }
+      });
     }
   });
 }
@@ -912,19 +967,176 @@ async function registrarEliminacion(docId, data) {
     
     await db.collection("registros_eliminados").add({
       // Datos del registro original
-      ...data,
+      tramite: data.tramite,
+      cliente: data.cliente,
+      direccion: data.direccion,
+      metros: data.metros,
+      fecha: data.fecha,
+      empleado: data.empleado,
+      hora: data.hora,
+      horaFin: data.horaFin,
+      observaciones: data.observaciones || "",
+      mes: data.mes,
+      año: data.año,
       
       // Datos de la eliminación
       registroOriginalId: docId,
       eliminadoPor: usuarioActual ? usuarioActual.email : "Usuario desconocido",
-      eliminadoEn: new Date(),
-      timestampEliminacion: firebase.firestore.FieldValue.serverTimestamp()
+      eliminadoEn: new Date().toISOString(),
+      timestampEliminacion: firebase.firestore.FieldValue.serverTimestamp(),
+      
+      // Metadatos adicionales
+      motivoEliminacion: "Eliminación manual",
+      navegador: navigator.userAgent
     });
     
-    console.log("✅ Eliminación registrada correctamente");
+    console.log("✅ Eliminación registrada correctamente en 'registros_eliminados'");
+    return true;
   } catch (error) {
     console.error("❌ Error al registrar eliminación:", error);
+    throw error; // Propagar el error para manejarlo en la función que llama
   }
 }
 
+// ===============================
+// 📋 VER REGISTROS ELIMINADOS
+// ===============================
+async function verRegistrosEliminados() {
+  try {
+    const snapshot = await db.collection("registros_eliminados")
+      .orderBy("timestampEliminacion", "desc")
+      .get(); // Sin límite, muestra todos
+    
+    if (snapshot.empty) {
+      Swal.fire({
+        icon: "info",
+        title: "Sin eliminaciones",
+        text: "No hay registros eliminados",
+        confirmButtonColor: "#667eea"
+      });
+      return;
+    }
+    
+    let html = '<div style="max-height: 500px; overflow-y: auto;">';
+    html += '<table style="width: 100%; font-size: 12px; border-collapse: collapse;">';
+    html += '<tr style="background: #f5f5f5;"><th style="padding: 8px; border: 1px solid #ddd;">Fecha</th><th style="padding: 8px; border: 1px solid #ddd;">Cliente</th><th style="padding: 8px; border: 1px solid #ddd;">Trámite</th><th style="padding: 8px; border: 1px solid #ddd;">Eliminado por</th><th style="padding: 8px; border: 1px solid #ddd;">Cuándo</th><th style="padding: 8px; border: 1px solid #ddd;">Acción</th></tr>';
+    
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const fechaEliminacion = data.eliminadoEn ? 
+        new Date(data.eliminadoEn).toLocaleString('es-AR') : 
+        'Desconocida';
+      
+      html += `<tr>
+        <td style="padding: 8px; border: 1px solid #ddd;">${data.fecha || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${data.cliente || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${data.tramite || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; font-size: 11px;">${data.eliminadoPor || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${fechaEliminacion}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+          <button 
+            onclick="restaurarRegistro('${doc.id}')" 
+            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: 600;"
+          >
+            🔄 Restaurar
+          </button>
+        </td>
+      </tr>`;
+    });
+    
+    html += '</table></div>';
+    html += `<div style="margin-top: 15px; text-align: center; color: #666; font-size: 13px;">Total: ${snapshot.size} registro(s) eliminado(s)</div>`;
+    
+    Swal.fire({
+      icon: "info",
+      title: "📋 Registros Eliminados",
+      html: html,
+      width: '900px',
+      confirmButtonColor: "#667eea"
+    });
+    
+  } catch (error) {
+    console.error("Error al obtener eliminados:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "No se pudieron cargar los registros eliminados",
+      confirmButtonColor: "#667eea"
+    });
+  }
+}
+
+// ===============================
+// 🔄 RESTAURAR REGISTRO
+// ===============================
+async function restaurarRegistro(docEliminadoId) {
+  const confirmar = await Swal.fire({
+    icon: "question",
+    title: "¿Restaurar registro?",
+    text: "El registro volverá a la tabla principal",
+    showCancelButton: true,
+    confirmButtonText: "Sí, restaurar",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#667eea",
+    cancelButtonColor: "#aaa"
+  });
+  
+  if (!confirmar.isConfirmed) return;
+  
+  try {
+    const docEliminado = await db.collection("registros_eliminados").doc(docEliminadoId).get();
+    
+    if (!docEliminado.exists) {
+      throw new Error("Registro eliminado no encontrado");
+    }
+    
+    const data = docEliminado.data();
+    
+    const datosRestaurados = {
+      tramite: data.tramite,
+      cliente: data.cliente,
+      direccion: data.direccion,
+      metros: data.metros,
+      fecha: data.fecha,
+      empleado: data.empleado,
+      hora: data.hora,
+      horaFin: data.horaFin,
+      observaciones: data.observaciones || "",
+      mes: data.mes,
+      año: data.año,
+      timestamp: new Date()
+    };
+    
+    await db.collection("registros").add(datosRestaurados);
+    
+    await db.collection("registros_eliminados").doc(docEliminadoId).update({
+      restaurado: true,
+      restauradoEn: new Date().toISOString(),
+      restauradoPor: auth.currentUser ? auth.currentUser.email : "Usuario desconocido"
+    });
+    
+    Swal.fire({
+      icon: "success",
+      title: "¡Restaurado!",
+      text: "El registro fue restaurado exitosamente",
+      timer: 2000,
+      showConfirmButton: false
+    });
+    
+    mostrarRegistros(mesActual, añoActual);
+    
+    setTimeout(() => {
+      verRegistrosEliminados();
+    }, 2100);
+    
+  } catch (error) {
+    console.error("Error al restaurar:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "No se pudo restaurar el registro",
+      confirmButtonColor: "#667eea"
+    });
+  }
+}
 });

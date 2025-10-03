@@ -287,6 +287,8 @@ main, .contenido-principal {
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
+  width: 100%; /* ← AGREGADO: Asegura que ocupe todo el ancho */
+  box-sizing: border-box; /* ← AGREGADO: Incluye padding en el ancho total */
 }
 
 .filtro-grupo input[type="date"]:focus {
@@ -441,6 +443,13 @@ main, .contenido-principal {
   }
 
   .filtro-grupo {
+    min-width: 100%;
+    width: 100%; /* ← AGREGADO: Fuerza ancho completo en mobile */
+  }
+
+  /* ← AGREGADO: Fuerza que los inputs de fecha ocupen todo el ancho en mobile */
+  .filtro-grupo input[type="date"] {
+    width: 100%;
     min-width: 100%;
   }
 
@@ -794,3 +803,33 @@ table, tbody, td {
   position: relative;
 } 
  
+/* BOTON  */
+
+.contenedor-btn-eliminados {
+  display: flex;
+  justify-content: center;
+  padding: 10px 20px;
+}
+
+.btn-ver-eliminados {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-ver-eliminados:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-ver-eliminados:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
