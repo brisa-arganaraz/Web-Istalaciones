@@ -997,77 +997,86 @@ async function registrarEliminacion(docId, data) {
     throw error; // Propagar el error para manejarlo en la función que llama
   }
 }
+});
+// ===============================
+// 🗑️ FUNCIÓN PARA REGISTRAR ELIMINACIONES (MODIFICADA)
+// ===============================
 
-// ===============================
-// 📋 VER REGISTROS ELIMINADOS
-// ===============================
-async function verRegistrosEliminados() {
+async function registrarEliminacion(docId, data) {
   try {
-    const snapshot = await db.collection("registros_eliminados")
-      .orderBy("timestampEliminacion", "desc")
-      .get(); // Sin límite, muestra todos
+    const usuarioActual = auth.currentUser;
     
-    if (snapshot.empty) {
-      Swal.fire({
-        icon: "info",
-        title: "Sin eliminaciones",
-        text: "No hay registros eliminados",
-        confirmButtonColor: "#667eea"
+    // Buscar si ya existe un documento de este registro en eliminados
+    const eliminadosExistentes = await db.collection("registros_eliminados")
+      .where("registroOriginalId", "==", docId)
+      .get();
+    
+    if (!eliminadosExistentes.empty) {
+      // Ya existe, agregar una nueva acción al historial
+      const docEliminado = eliminadosExistentes.docs[0];
+      const historialActual = docEliminado.data().historial || [];
+      
+      historialActual.push({
+        accion: "eliminado",
+        fecha: new Date().toISOString(),
+        usuario: usuarioActual ? usuarioActual.email : "Usuario desconocido",
+        navegador: navigator.userAgent
       });
-      return;
+      
+      await db.collection("registros_eliminados").doc(docEliminado.id).update({
+        historial: historialActual,
+        ultimaAccion: "eliminado",
+        ultimaAccionFecha: new Date().toISOString(),
+        vecesEliminado: (docEliminado.data().vecesEliminado || 1) + 1
+      });
+      
+    } else {
+      // No existe, crear nuevo documento
+      await db.collection("registros_eliminados").add({
+        // Datos del registro original
+        tramite: data.tramite,
+        cliente: data.cliente,
+        direccion: data.direccion,
+        metros: data.metros,
+        fecha: data.fecha,
+        empleado: data.empleado,
+        hora: data.hora,
+        horaFin: data.horaFin,
+        observaciones: data.observaciones || "",
+        mes: data.mes,
+        año: data.año,
+        
+        // Datos de la eliminación
+        registroOriginalId: docId,
+        eliminadoPor: usuarioActual ? usuarioActual.email : "Usuario desconocido",
+        eliminadoEn: new Date().toISOString(),
+        timestampEliminacion: firebase.firestore.FieldValue.serverTimestamp(),
+        
+        // Historial de acciones
+        historial: [{
+          accion: "eliminado",
+          fecha: new Date().toISOString(),
+          usuario: usuarioActual ? usuarioActual.email : "Usuario desconocido",
+          navegador: navigator.userAgent
+        }],
+        
+        ultimaAccion: "eliminado",
+        ultimaAccionFecha: new Date().toISOString(),
+        vecesEliminado: 1,
+        vecesRestaurado: 0
+      });
     }
     
-    let html = '<div style="max-height: 500px; overflow-y: auto;">';
-    html += '<table style="width: 100%; font-size: 12px; border-collapse: collapse;">';
-    html += '<tr style="background: #f5f5f5;"><th style="padding: 8px; border: 1px solid #ddd;">Fecha</th><th style="padding: 8px; border: 1px solid #ddd;">Cliente</th><th style="padding: 8px; border: 1px solid #ddd;">Trámite</th><th style="padding: 8px; border: 1px solid #ddd;">Eliminado por</th><th style="padding: 8px; border: 1px solid #ddd;">Cuándo</th><th style="padding: 8px; border: 1px solid #ddd;">Acción</th></tr>';
-    
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const fechaEliminacion = data.eliminadoEn ? 
-        new Date(data.eliminadoEn).toLocaleString('es-AR') : 
-        'Desconocida';
-      
-      html += `<tr>
-        <td style="padding: 8px; border: 1px solid #ddd;">${data.fecha || '-'}</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">${data.cliente || '-'}</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">${data.tramite || '-'}</td>
-        <td style="padding: 8px; border: 1px solid #ddd; font-size: 11px;">${data.eliminadoPor || '-'}</td>
-        <td style="padding: 8px; border: 1px solid #ddd;">${fechaEliminacion}</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
-          <button 
-            onclick="restaurarRegistro('${doc.id}')" 
-            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: 600;"
-          >
-            🔄 Restaurar
-          </button>
-        </td>
-      </tr>`;
-    });
-    
-    html += '</table></div>';
-    html += `<div style="margin-top: 15px; text-align: center; color: #666; font-size: 13px;">Total: ${snapshot.size} registro(s) eliminado(s)</div>`;
-    
-    Swal.fire({
-      icon: "info",
-      title: "📋 Registros Eliminados",
-      html: html,
-      width: '900px',
-      confirmButtonColor: "#667eea"
-    });
-    
+    console.log("✅ Eliminación registrada correctamente en 'registros_eliminados'");
+    return true;
   } catch (error) {
-    console.error("Error al obtener eliminados:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "No se pudieron cargar los registros eliminados",
-      confirmButtonColor: "#667eea"
-    });
+    console.error("❌ Error al registrar eliminación:", error);
+    throw error;
   }
 }
 
 // ===============================
-// 🔄 RESTAURAR REGISTRO
+// 🔄 RESTAURAR REGISTRO (MODIFICADA)
 // ===============================
 async function restaurarRegistro(docEliminadoId) {
   const confirmar = await Swal.fire({
@@ -1109,10 +1118,20 @@ async function restaurarRegistro(docEliminadoId) {
     
     await db.collection("registros").add(datosRestaurados);
     
+    // Actualizar el historial en lugar de marcar como restaurado
+    const historialActual = data.historial || [];
+    historialActual.push({
+      accion: "restaurado",
+      fecha: new Date().toISOString(),
+      usuario: auth.currentUser ? auth.currentUser.email : "Usuario desconocido",
+      navegador: navigator.userAgent
+    });
+    
     await db.collection("registros_eliminados").doc(docEliminadoId).update({
-      restaurado: true,
-      restauradoEn: new Date().toISOString(),
-      restauradoPor: auth.currentUser ? auth.currentUser.email : "Usuario desconocido"
+      historial: historialActual,
+      ultimaAccion: "restaurado",
+      ultimaAccionFecha: new Date().toISOString(),
+      vecesRestaurado: (data.vecesRestaurado || 0) + 1
     });
     
     Swal.fire({
@@ -1123,8 +1142,6 @@ async function restaurarRegistro(docEliminadoId) {
       showConfirmButton: false
     });
     
-    mostrarRegistros(mesActual, añoActual);
-    
     setTimeout(() => {
       verRegistrosEliminados();
     }, 2100);
@@ -1134,9 +1151,158 @@ async function restaurarRegistro(docEliminadoId) {
     Swal.fire({
       icon: "error",
       title: "Error",
-      text: "No se pudo restaurar el registro",
+      text: "No se pudo restaurar el registro: " + error.message,
       confirmButtonColor: "#667eea"
     });
   }
 }
-});
+
+// ===============================
+// 📋 VER REGISTROS ELIMINADOS CON HISTORIAL (COMPATIBLE CON REGISTROS ANTIGUOS)
+// ===============================
+async function verRegistrosEliminados() {
+  const db = firebase.firestore();
+  
+  try {
+    const snapshot = await db.collection("registros_eliminados")
+      .orderBy("timestampEliminacion", "desc")
+      .get();
+    
+    if (snapshot.empty) {
+      Swal.fire({
+        icon: "info",
+        title: "Sin eliminaciones",
+        text: "No hay registros eliminados",
+        confirmButtonColor: "#667eea"
+      });
+      return;
+    }
+    
+    let html = '<div style="max-height: 500px; overflow-y: auto;">';
+    html += '<table style="width: 100%; font-size: 12px; border-collapse: collapse;">';
+    html += '<tr style="background: #f5f5f5;">';
+    html += '<th style="padding: 8px; border: 1px solid #ddd;">Fecha</th>';
+    html += '<th style="padding: 8px; border: 1px solid #ddd;">Cliente</th>';
+    html += '<th style="padding: 8px; border: 1px solid #ddd;">Trámite</th>';
+    html += '<th style="padding: 8px; border: 1px solid #ddd;">Estado</th>';
+    html += '<th style="padding: 8px; border: 1px solid #ddd;">Historial</th>';
+    html += '<th style="padding: 8px; border: 1px solid #ddd;">Acción</th>';
+    html += '</tr>';
+    
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const historial = data.historial || [];
+      
+      // Determinar el estado actual (compatible con registros antiguos)
+      let estadoHTML = '';
+      let estadoColor = '';
+      let estaRestaurado = false;
+      
+      if (!data.ultimaAccion || data.ultimaAccion === "eliminado") {
+        estadoHTML = '🗑️ Eliminado';
+        estadoColor = '#dc3545';
+        estaRestaurado = false;
+      } else if (data.ultimaAccion === "restaurado") {
+        estadoHTML = '🔄 Restaurado';
+        estadoColor = '#28a745';
+        estaRestaurado = true;
+      }
+      
+      // Construir historial detallado
+      let historialHTML = '<div style="text-align: left; max-width: 300px;">';
+      
+      if (historial.length === 0) {
+        // Registro antiguo sin historial
+        const fechaEliminacion = data.eliminadoEn ? 
+          new Date(data.eliminadoEn).toLocaleString('es-AR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }) : 'Fecha desconocida';
+        
+        historialHTML += `
+          <div style="padding: 4px 0; border-bottom: 1px solid #eee; font-size: 11px;">
+            <span style="color: #dc3545; font-weight: bold;">🗑️ ELIMINADO</span><br>
+            <span style="color: #666;">📅 ${fechaEliminacion}</span><br>
+            <span style="color: #666;">👤 ${data.eliminadoPor || 'Usuario desconocido'}</span>
+          </div>
+        `;
+      } else {
+        // Registro con historial
+        historial.forEach((accion, index) => {
+          const fecha = new Date(accion.fecha).toLocaleString('es-AR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          
+          const icono = accion.accion === 'eliminado' ? '🗑️' : '🔄';
+          const color = accion.accion === 'eliminado' ? '#dc3545' : '#28a745';
+          
+          historialHTML += `
+            <div style="padding: 4px 0; border-bottom: 1px solid #eee; font-size: 11px;">
+              <span style="color: ${color}; font-weight: bold;">${icono} ${accion.accion.toUpperCase()}</span><br>
+              <span style="color: #666;">📅 ${fecha}</span><br>
+              <span style="color: #666;">👤 ${accion.usuario}</span>
+            </div>
+          `;
+        });
+      }
+      historialHTML += '</div>';
+      
+      // Mostrar contador
+      const vecesEliminado = data.vecesEliminado || 1;
+      const vecesRestaurado = data.vecesRestaurado || 0;
+      const contadorHTML = `
+        <div style="font-size: 10px; color: #666; margin-top: 5px;">
+          Eliminado: ${vecesEliminado}x | Restaurado: ${vecesRestaurado}x
+        </div>
+      `;
+      
+      html += `<tr>
+        <td style="padding: 8px; border: 1px solid #ddd;">${data.fecha || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${data.cliente || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${data.tramite || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">
+          <span style="color: ${estadoColor}; font-weight: bold;">${estadoHTML}</span>
+          ${contadorHTML}
+        </td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${historialHTML}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+          ${!estaRestaurado ? `
+            <button 
+              onclick="restaurarRegistro('${doc.id}')" 
+              style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: 600;"
+            >
+              🔄 Restaurar
+            </button>
+          ` : '<span style="color: #999;">Ya restaurado</span>'}
+        </td>
+      </tr>`;
+    });
+    
+    html += '</table></div>';
+    html += `<div style="margin-top: 15px; text-align: center; color: #666; font-size: 13px;">Total: ${snapshot.size} registro(s) en historial</div>`;
+    
+    Swal.fire({
+      icon: "info",
+      title: "📋 Historial de Eliminaciones",
+      html: html,
+      width: '1000px',
+      confirmButtonColor: "#667eea"
+    });
+    
+  } catch (error) {
+    console.error("Error al obtener eliminados:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "No se pudieron cargar los registros eliminados: " + error.message,
+      confirmButtonColor: "#667eea"
+    });
+  }
+}
