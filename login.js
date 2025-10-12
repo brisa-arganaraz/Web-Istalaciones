@@ -35,7 +35,7 @@ loginButton.addEventListener("click", (event) => {
           icon: "swal2-icon-custom"
         }
       }).then(() => {
-        window.location.href = "panel.html"; // Redirección igual que antes
+        window.location.href = "formulario.html"; // Redirección igual que antes
       });
     })
     .catch((error) => {

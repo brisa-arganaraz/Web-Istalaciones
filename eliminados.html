@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminados - Sistema de Instalaciones</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="img/Internet.jpg">
+    <link rel="apple-touch-icon" href="img/Internet.jpg">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" 
+          integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+    
+    <!-- ========== PANTALLA DE VERIFICACIÓN ========== -->
+    <div id="accessContainer" style="display: flex;">
+        <div class="background">
+            <div class="binary-pattern"></div>
+        </div>
+
+        <div class="wifi-icon">
+            <div class="wifi-symbol">
+                <div class="wifi-circle"></div>
+                <div class="wifi-circle"></div>
+                <div class="wifi-circle"></div>
+                <div class="wifi-dot"></div>
+            </div>
+        </div>
+
+        <div class="access-box">
+            <div class="loader"></div>
+            <div class="message">
+                <h2>Verificando permisos...</h2>
+                <p>Por favor esperá un momento mientras validamos tu acceso.</p>
+            </div>
+
+            <div id="errorBox" style="display: none;">
+                <div class="error-icon">🔒</div>
+                <h1 class="error-title">Acceso Denegado</h1>
+                <p class="error-text">
+                    No tenés permisos para acceder a esta página.
+                </p>
+                
+                <div class="error-details">
+                    <strong>⚠️ ¿Por qué veo esto?</strong>
+                    <p>• Esta sección requiere permisos especiales</p>
+                    <p>• Tu cuenta no tiene autorización para este contenido</p>
+                    <p>• Contactá al administrador si necesitás acceso</p>
+                </div>
+                
+                <a href="formulario.html" class="btn-back">← Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MENU NAVEGACIÓN ========== -->
+    <nav class="admin-navbar">
+        <div class="nav-container">
+            <div id="icono-nav" onclick="responsiveMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="formulario.html" class="nav-link">
+                        <i class="fa-solid fa-file-lines"></i> Formulario
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="clientes.html" class="nav-link">
+                        <i class="fa-solid fa-users"></i> Clientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="facturacion.html" class="nav-link">
+                        <i class="fa-solid fa-dollar-sign"></i> Facturación
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="eliminados.html" class="nav-link active">
+                        <i class="fa-solid fa-trash"></i> Eliminados
+                    </a>
+                </li>
+            </ul>
+            <button id="logoutBtn" type="button">
+                <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========== SECCIÓN ELIMINADOS ========== -->
+    <section class="content-section" style="display: none;">
+        <div class="section-content">
+            
+            <!-- Título Mejorado -->
+            <div class="eliminados-header">
+                <h2>
+                    <i class="fa-solid fa-trash-can icono-eliminados"></i>
+                    Registros Eliminados
+                </h2>
+                <p>Historial completo de registros eliminados y restaurados</p>
+            </div>
+
+            <!-- Tabla de Eliminados -->
+            <div class="table-section">
+                <table id="tablaEliminados">
+                    <thead>
+                        <tr>
+                            <th><i class="fa-solid fa-calendar"></i> Fecha</th>
+                            <th><i class="fa-solid fa-user"></i> Cliente</th>
+                            <th><i class="fa-solid fa-document"></i> Trámite</th>
+                            <th><i class="fa-solid fa-wrench"></i> Empleado</th>
+                            <th><i class="fa-solid fa-flag"></i> Estado</th>
+                            <th><i class="fa-solid fa-history"></i> Información</th>
+                            <th><i class="fa-solid fa-cogs"></i> Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Los registros se cargarán aquí dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ========== FOOTER ========== -->
+    <footer>
+        <p>&copy; 2025 Sistema de Instalaciones. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- ========== FIREBASE SCRIPTS ========== -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZCvpW5FP3s9VPZgeVZZnRVouysDiqhrQ",
+            authDomain: "web-instalaciones.firebaseapp.com",
+            projectId: "web-instalaciones",
+            storageBucket: "web-instalaciones.appspot.com",
+            messagingSenderId: "244019070867",
+            appId: "1:244019070867:web:7be383a3d6f64da37f8a66"
+        };
+        firebase.initializeApp(firebaseConfig);
+        
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="panel.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario - Sistema de Instalaciones</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="img/Internet.jpg">
+    <link rel="apple-touch-icon" href="img/Internet.jpg">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" 
+          integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+    
+    <!-- ========== MENU NAVEGACIÓN ========== -->
+    <nav class="admin-navbar">
+        <div class="nav-container">
+            <div id="icono-nav" onclick="responsiveMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="formulario.html" class="nav-link active">
+                        <i class="fa-solid fa-file-lines"></i> Formulario
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="clientes.html" class="nav-link">
+                        <i class="fa-solid fa-users"></i> Clientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="facturacion.html" class="nav-link">
+                        <i class="fa-solid fa-dollar-sign"></i> Facturación
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="eliminados.html" class="nav-link">
+                        <i class="fa-solid fa-trash"></i> Eliminados
+                    </a>
+                </li>
+            </ul>
+            <button id="logoutBtn" type="button">
+                <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========== SECCIÓN FORMULARIO ========== -->
+    <section class="video-section">
+        <video autoplay muted loop id="bg-video">
+            <source src="img/WhatsApp Video 2025-09-26 at 3.53.10 PM.mp4" type="video/mp4">
+        </video>
+
+        <div class="formulario-container">
+            <h1>Registro de Instalaciones</h1>
+            <form id="registroForm">
+                <input type="text" id="tramite" placeholder="N° Trámite" required>
+                <input type="text" id="cliente" placeholder="Nombre del Cliente" required>
+                <input type="text" id="direccion" placeholder="Dirección" required>
+                <input type="number" id="metros" placeholder="Metros instalados" required>
+                <input type="date" id="fecha" required>
+                <input type="text" id="empleado" placeholder="Empleado asignado" required>
+                <input type="time" id="hora" required>
+                <input type="time" id="horaFin" placeholder="Hora de finalización" required>
+                <textarea id="observaciones" placeholder="Observaciones"></textarea>
+                <button type="submit">
+                    <i class="fa-solid fa-plus"></i> Agregar Registro
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer>
+        <p>&copy; 2025 Sistema de Instalaciones. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- ========== FIREBASE SCRIPTS ========== -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZCvpW5FP3s9VPZgeVZZnRVouysDiqhrQ",
+            authDomain: "web-instalaciones.firebaseapp.com",
+            projectId: "web-instalaciones",
+            storageBucket: "web-instalaciones.appspot.com",
+            messagingSenderId: "244019070867",
+            appId: "1:244019070867:web:7be383a3d6f64da37f8a66"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="panel.js"></script>
+
+</body>
+</html>
