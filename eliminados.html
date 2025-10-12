@@ -17,8 +17,42 @@
     <link rel="stylesheet" href="style1.css">
 </head>
 <body>
-    
-    <!-- ========== PANTALLA DE VERIFICACIÓN ========== -->
+
+    <!-- ========== MENU NAVEGACIÓN ========== -->
+    <nav class="admin-navbar">
+        <div class="nav-container">
+            <div id="icono-nav" onclick="responsiveMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="formulario.html" class="nav-link">
+                        <i class="fa-solid fa-file-lines"></i> Formulario
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="clientes.html" class="nav-link">
+                        <i class="fa-solid fa-users"></i> Clientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="facturacion.html" class="nav-link">
+                        <i class="fa-solid fa-dollar-sign"></i> Facturación
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="eliminados.html" class="nav-link active">
+                        <i class="fa-solid fa-trash"></i> Eliminados
+                    </a>
+                </li>
+            </ul>
+            <button id="logoutBtn" type="button">
+                <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+            </button>
+        </div>
+    </nav>
+
+<!-- ========== PANTALLA DE VERIFICACIÓN ========== -->
     <div id="accessContainer" style="display: flex;">
         <div class="background">
             <div class="binary-pattern"></div>
@@ -58,40 +92,6 @@
             </div>
         </div>
     </div>
-
-    <!-- ========== MENU NAVEGACIÓN ========== -->
-    <nav class="admin-navbar">
-        <div class="nav-container">
-            <div id="icono-nav" onclick="responsiveMenu()">
-                <i class="fa-solid fa-bars"></i>
-            </div>
-            <ul class="nav-menu" id="navMenu">
-                <li class="nav-item">
-                    <a href="formulario.html" class="nav-link">
-                        <i class="fa-solid fa-file-lines"></i> Formulario
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="clientes.html" class="nav-link">
-                        <i class="fa-solid fa-users"></i> Clientes
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="facturacion.html" class="nav-link">
-                        <i class="fa-solid fa-dollar-sign"></i> Facturación
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="eliminados.html" class="nav-link active">
-                        <i class="fa-solid fa-trash"></i> Eliminados
-                    </a>
-                </li>
-            </ul>
-            <button id="logoutBtn" type="button">
-                <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
-            </button>
-        </div>
-    </nav>
 
     <!-- ========== SECCIÓN ELIMINADOS ========== -->
     <section class="content-section" style="display: none;">
